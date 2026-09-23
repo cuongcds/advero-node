@@ -1,0 +1,29 @@
+{
+  "name": "advero-node",
+  "version": "0.1.0",
+  "description": "Server-side Node.js/TypeScript API client for the Advero partner API",
+  "license": "MIT",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "type": "commonjs",
+  "engines": {
+    "node": ">=18"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc --noEmit"
+  },
+  "keywords": [
+    "advero",
+    "ads",
+    "api-client",
+    "sdk"
+  ],
+  "devDependencies": {
+    "typescript": "^5.5.4",
+    "@types/node": "^20.14.10"
+  }
+}

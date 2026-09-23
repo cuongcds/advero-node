@@ -3,14 +3,13 @@ import type { AdveroDashboardWidgetKey } from './advero.interface';
 import { AdveroCachedResult, AdveroService } from './advero.service';
 
 /**
- * JSON equivalent of advero-ci3's Advero_dashboard controller: one endpoint
- * aggregating wallet, recent campaigns, inventory, and advertiser/publisher
- * reports, each independently cached and independently allowed to fail
- * (one widget's error never blocks the others).
+ * Dashboard endpoint: one route aggregating wallet, recent campaigns,
+ * inventory, and advertiser/publisher reports, each independently cached
+ * and independently allowed to fail (one widget's error never blocks the
+ * others).
  *
- * Route prefixed "advero" (collision-safe, mirrors advero-ci3's
- * Advero_dashboard/Advero_lib naming) — mount as-is or re-export under your
- * own prefix.
+ * Route prefixed "advero" (collision-safe with an existing project's own
+ * controllers) — mount as-is or re-export under your own prefix.
  */
 @Controller('advero')
 export class AdveroController {

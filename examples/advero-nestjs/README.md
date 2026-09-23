@@ -1,10 +1,9 @@
 # advero-nestjs (example)
 
 Drop-in NestJS module wrapping [`advero-node`](../../) for a NestJS backend
-that needs to call the Advero partner API — mirrors the shape of
-`examples/advero-ci3` in `advero-php` (an overview dashboard: wallet, recent
-campaigns, inventory, advertiser/publisher reports), but as a NestJS
-module + JSON endpoint instead of a CodeIgniter controller + HTML view.
+that needs to call the Advero partner API — an overview dashboard (wallet,
+recent campaigns, inventory, advertiser/publisher reports) exposed as a
+NestJS module + JSON endpoint.
 
 ## What this is not
 
@@ -106,17 +105,15 @@ AdveroModule.forRootAsync({
 Each widget's `ok`/`error`/`fetchedAt`/`fromCache` fields are independent —
 one Advero API call failing only affects that widget's entry, the rest of
 the response still returns normally (`Promise.all` over independently
-try/caught calls, same principle as advero-ci3's per-widget error handling).
+try/caught calls).
 
 `fetchedAt` is the current cache bucket boundary (ms epoch, floored down to
-`cacheBucketMinutes`) — the same "As of HH:MM" concept as advero-ci3, so every
-request within the same 30-minute window returns the same `fetchedAt` for a
-given widget/filter combination.
+`cacheBucketMinutes`), so every request within the same 30-minute window
+returns the same `fetchedAt` for a given widget/filter combination.
 
 ### Toggling widgets
 
-Mirrors advero-ci3's `dashboard_widgets[].enabled` — pass `widgets` to
-`forRoot()`/`forRootAsync()` to turn specific widgets off:
+Pass `widgets` to `forRoot()`/`forRootAsync()` to turn specific widgets off:
 
 ```ts
 AdveroModule.forRoot({
@@ -129,9 +126,9 @@ AdveroModule.forRoot({
 ```
 
 A widget set to `false` is skipped completely — no `AdveroClient` call, no
-cache entry, and no key in the `GET /advero/dashboard` response for it — the
-same "costs nothing when disabled" behavior as advero-ci3, rather than being
-fetched and then hidden. Any key you don't list defaults to enabled, so an
+cache entry, and no key in the `GET /advero/dashboard` response for it,
+rather than being fetched and then hidden. Any key you don't list defaults
+to enabled, so an
 existing config that never sets `widgets` keeps showing every widget
 unchanged. Valid keys: `wallet`, `campaigns`, `inventory`,
 `advertiser_report`, `publisher_report` (the `AdveroDashboardWidgetKey`
@@ -140,15 +137,13 @@ type exported from `src/advero`).
 ## Caching strategy
 
 `AdveroService` caches each widget's result in a plain in-memory `Map`, keyed
-by `widget key + sorted filters + current bucket boundary` — directly
-equivalent to `Advero_dashboard::fetchWithCache()` in `advero-ci3`, just
-without a file-cache driver. A failed call is **never** cached, so a
-transient Advero API outage self-heals on the very next request instead of
-serving a cached error for the rest of the bucket.
+by `widget key + sorted filters + current bucket boundary`. A failed call is
+**never** cached, so a transient Advero API outage self-heals on the very
+next request instead of serving a cached error for the rest of the bucket.
 
 This example intentionally uses a bare `Map` rather than
-`@nestjs/cache-manager`, to stay dependency-free like `advero-php`'s use of
-built-in `curl`/`json`. Trade-off: the cache is per-process/per-instance —
+`@nestjs/cache-manager`, to stay dependency-free. Trade-off: the cache is
+per-process/per-instance —
 fine for a single-instance deployment or local dev, but each replica in a
 multi-instance deployment will independently hit the Advero API on its own
 first request per bucket. If you run more than one instance behind a load

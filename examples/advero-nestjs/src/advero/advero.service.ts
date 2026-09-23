@@ -18,17 +18,17 @@ interface CacheEntry {
 }
 
 /**
- * Wraps AdveroClient with the same cache-bucket strategy as advero-ci3's
- * Advero_dashboard::fetchWithCache(): each (key + filters) combination is
- * cached for cacheBucketMinutes at a time, keyed by the current bucket
- * boundary — so the cache expires by construction (once the boundary moves,
- * the old key is never looked up again) without a separate TTL sweep.
+ * Wraps AdveroClient with a bucketed cache strategy: each (key + filters)
+ * combination is cached for cacheBucketMinutes at a time, keyed by the
+ * current bucket boundary — so the cache expires by construction (once the
+ * boundary moves, the old key is never looked up again) without a separate
+ * TTL sweep.
  *
  * Uses a plain in-memory Map instead of @nestjs/cache-manager to keep this
- * example dependency-free (mirrors advero-php's zero-dependency ethos) — for
- * a multi-instance/production deployment, swap this for a shared cache
- * (Redis via @nestjs/cache-manager) so buckets are consistent across
- * instances; the bucket-key logic below stays the same either way.
+ * example dependency-free — for a multi-instance/production deployment,
+ * swap this for a shared cache (Redis via @nestjs/cache-manager) so buckets
+ * are consistent across instances; the bucket-key logic below stays the
+ * same either way.
  */
 @Injectable()
 export class AdveroService {
@@ -45,9 +45,9 @@ export class AdveroService {
   }
 
   /**
-   * Mirrors advero-ci3's dashboard_widgets[].enabled — a key left out of
-   * AdveroModuleOptions.widgets defaults to enabled, so existing configs
-   * that never set `widgets` keep showing every widget unchanged.
+   * A key left out of AdveroModuleOptions.widgets defaults to enabled, so
+   * existing configs that never set `widgets` keep showing every widget
+   * unchanged.
    */
   isWidgetEnabled(key: AdveroDashboardWidgetKey): boolean {
     return this.options.widgets?.[key] !== false;
@@ -80,8 +80,7 @@ export class AdveroService {
   }
 
   /**
-   * Shared cache/error/fetchedAt wrapper, one per dashboard data point —
-   * equivalent to Advero_dashboard::fetchWithCache() in advero-ci3.
+   * Shared cache/error/fetchedAt wrapper, one per dashboard data point.
    * A failed call is never cached, so a transient outage self-heals on the
    * very next request instead of being "stuck" showing an error.
    */

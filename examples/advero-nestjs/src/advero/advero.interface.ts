@@ -15,17 +15,15 @@ export interface AdveroModuleOptions {
   /** Per-request HTTP timeout in ms, forwarded to AdveroClient. Default: 15000. */
   timeoutMs?: number;
   /**
-   * Dashboard cache bucket size in minutes, mirroring advero-ci3's
-   * cache_bucket_minutes. Default: 30.
+   * Dashboard cache bucket size in minutes. Default: 30.
    */
   cacheBucketMinutes?: number;
   /**
-   * Per-widget on/off switch for GET /advero/dashboard, mirroring
-   * advero-ci3's dashboard_widgets[].enabled — a widget set to `false` here
-   * is never fetched (no AdveroClient call, no cache entry) and is omitted
-   * from the response entirely, rather than being fetched and hidden.
-   * Any key left out defaults to enabled (`true`), so existing configs
-   * that don't set `widgets` keep showing every widget unchanged.
+   * Per-widget on/off switch for GET /advero/dashboard — a widget set to
+   * `false` here is never fetched (no AdveroClient call, no cache entry)
+   * and is omitted from the response entirely, rather than being fetched
+   * and hidden. Any key left out defaults to enabled (`true`), so existing
+   * configs that don't set `widgets` keep showing every widget unchanged.
    */
   widgets?: Partial<Record<AdveroDashboardWidgetKey, boolean>>;
 }

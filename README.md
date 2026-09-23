@@ -9,9 +9,7 @@ without going through the Advero UI.
 This is distinct from the browser-side Advero SDKs (JS/Android/Swift/Flutter
 client snippets publishers embed to *display* ads): `advero-node` is a
 server-to-server HTTP client, has no DOM/browser code, and authenticates with
-an API key/secret instead of a verified property key. It's the TypeScript
-counterpart of [`sdks/advero-php`](../advero-php) — same endpoints, same
-response envelope, same method names (camelCase).
+an API key/secret instead of a verified property key.
 
 ## Install
 
@@ -49,8 +47,8 @@ const client = new AdveroClient('https://api-advero.domain.com', apiKey, apiSecr
 ```
 
 Missing `baseUrl`, `apiKey`, or `apiSecret` throws `TypeError` immediately,
-before any request is made (mirrors `advero-php`'s `InvalidArgumentException`
-— see [Design notes](#design-notes--implementation-choices) for why `TypeError`).
+before any request is made — see [Design notes](#design-notes--implementation-choices)
+for why `TypeError`.
 
 ## Usage
 
@@ -184,8 +182,7 @@ server-to-server client.
   without consumers needing `"type": "module"` in their own `package.json` or
   dealing with dual-package hazard. TypeScript is compiled once, to CJS.
 - **Built-in `fetch`, not axios/node-fetch.** Keeps the package
-  dependency-free at runtime, same spirit as `advero-php` using PHP's
-  built-in `curl` instead of Guzzle. Requires Node >= 18 (`engines` field in
+  dependency-free at runtime. Requires Node >= 18 (`engines` field in
   `package.json`); `AbortController` (also built in since Node 15) is used to
   implement the request timeout.
 - **`TypeError` for constructor validation**, not a custom
@@ -197,9 +194,8 @@ server-to-server client.
 - **Loosely typed responses (`any` / `Record<string, unknown>`), not a fully
   modeled interface per resource.** The API response contract lives in
   exactly one place — the Advero backend's `api/*` controllers — and
-  hand-modeling every field here would drift out of sync with it over time
-  (the same reasoning `advero-php`'s README gives for not validating
-  request payloads client-side). Trade-off: no compile-time autocomplete on
+  hand-modeling every field here would drift out of sync with it over time.
+  Trade-off: no compile-time autocomplete on
   response fields; callers who want that can cast a method's result to their
   own interface (e.g. `const wallet = await client.getWallet() as MyWallet`).
   Request bodies/query params (`AdveroParams`) are typed just enough to catch
@@ -217,5 +213,5 @@ server-to-server client.
 - [`examples/advero-nestjs/`](examples/advero-nestjs/) — `AdveroModule`
   (`forRoot`/`forRootAsync`), `AdveroService` (cached wrapper), and
   `AdveroController` (`GET /advero/dashboard`) for an existing NestJS
-  project, with the same bucketed-cache/"fetched_at" behavior as
-  `advero-php`'s `examples/advero-ci3/`.
+  project, with per-widget caching on a configurable time bucket and a
+  `fetchedAt` timestamp on each result.

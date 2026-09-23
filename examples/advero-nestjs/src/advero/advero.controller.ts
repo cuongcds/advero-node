@@ -1,5 +1,6 @@
 import { Controller, Get } from '@nestjs/common';
-import { AdveroService } from './advero.service';
+import type { AdveroDashboardWidgetKey } from './advero.interface';
+import { AdveroCachedResult, AdveroService } from './advero.service';
 
 /**
  * JSON equivalent of advero-ci3's Advero_dashboard controller: one endpoint
@@ -17,22 +18,27 @@ export class AdveroController {
 
   @Get('dashboard')
   async dashboard() {
-    const [wallet, campaigns, inventory, advertiserReport, publisherReport] = await Promise.all([
-      this.advero.getWalletCached(),
-      this.advero.getRecentCampaignsCached(5),
-      this.advero.getInventoryCached(5),
-      this.advero.getAdvertiserReportCached(30),
-      this.advero.getPublisherReportCached(30),
-    ]);
-
-    return {
-      widgets: {
-        wallet,
-        campaigns,
-        inventory,
-        advertiser_report: advertiserReport,
-        publisher_report: publisherReport,
-      },
+    // A disabled widget (AdveroModuleOptions.widgets.{key} === false) is
+    // skipped entirely here — no AdveroClient call, no cache entry, and no
+    // key in the response — rather than being fetched and then hidden.
+    const fetchers: Record<AdveroDashboardWidgetKey, () => Promise<AdveroCachedResult<any>>> = {
+      wallet: () => this.advero.getWalletCached(),
+      campaigns: () => this.advero.getRecentCampaignsCached(5),
+      inventory: () => this.advero.getInventoryCached(5),
+      advertiser_report: () => this.advero.getAdvertiserReportCached(30),
+      publisher_report: () => this.advero.getPublisherReportCached(30),
     };
+
+    const enabledKeys = (Object.keys(fetchers) as AdveroDashboardWidgetKey[]).filter((key) =>
+      this.advero.isWidgetEnabled(key)
+    );
+    const results = await Promise.all(enabledKeys.map((key) => fetchers[key]()));
+
+    const widgets: Partial<Record<AdveroDashboardWidgetKey, AdveroCachedResult<any>>> = {};
+    enabledKeys.forEach((key, i) => {
+      widgets[key] = results[i];
+    });
+
+    return { widgets };
   }
 }

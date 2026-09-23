@@ -14,6 +14,11 @@ import { AdveroModule } from './advero';
       apiKey: process.env.ADVERO_API_KEY ?? '',
       apiSecret: process.env.ADVERO_API_SECRET ?? '',
       cacheBucketMinutes: 30,
+      // Optional — omit entirely to show every widget. Any key left out
+      // here defaults to enabled; only `false` hides a widget.
+      widgets: {
+        publisher_report: false,
+      },
     }),
   ],
 })

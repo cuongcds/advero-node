@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import type { AdveroClient } from 'advero-node';
 import { ADVERO_CLIENT, ADVERO_MODULE_OPTIONS } from './advero.constants';
-import type { AdveroModuleOptions } from './advero.interface';
+import type { AdveroDashboardWidgetKey, AdveroModuleOptions } from './advero.interface';
 
 export interface AdveroCachedResult<T> {
   ok: boolean;
@@ -42,6 +42,15 @@ export class AdveroService {
   /** Direct access to the underlying AdveroClient for anything not covered by the cached helpers below. */
   getClient(): AdveroClient {
     return this.client;
+  }
+
+  /**
+   * Mirrors advero-ci3's dashboard_widgets[].enabled — a key left out of
+   * AdveroModuleOptions.widgets defaults to enabled, so existing configs
+   * that never set `widgets` keep showing every widget unchanged.
+   */
+  isWidgetEnabled(key: AdveroDashboardWidgetKey): boolean {
+    return this.options.widgets?.[key] !== false;
   }
 
   async getWalletCached(): Promise<AdveroCachedResult<any>> {

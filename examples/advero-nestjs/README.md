@@ -57,6 +57,7 @@ import { AdveroModule } from './advero';
       apiKey: process.env.ADVERO_API_KEY!,
       apiSecret: process.env.ADVERO_API_SECRET!,
       cacheBucketMinutes: 30, // optional, default 30
+      widgets: { publisher_report: false }, // optional — see "Toggling widgets" below
     }),
   ],
 })
@@ -111,6 +112,30 @@ try/caught calls, same principle as advero-ci3's per-widget error handling).
 `cacheBucketMinutes`) — the same "As of HH:MM" concept as advero-ci3, so every
 request within the same 30-minute window returns the same `fetchedAt` for a
 given widget/filter combination.
+
+### Toggling widgets
+
+Mirrors advero-ci3's `dashboard_widgets[].enabled` — pass `widgets` to
+`forRoot()`/`forRootAsync()` to turn specific widgets off:
+
+```ts
+AdveroModule.forRoot({
+  baseUrl, apiKey, apiSecret,
+  widgets: {
+    publisher_report: false, // hidden entirely — see below
+    // wallet, campaigns, inventory, advertiser_report: left out, so all default to enabled
+  },
+})
+```
+
+A widget set to `false` is skipped completely — no `AdveroClient` call, no
+cache entry, and no key in the `GET /advero/dashboard` response for it — the
+same "costs nothing when disabled" behavior as advero-ci3, rather than being
+fetched and then hidden. Any key you don't list defaults to enabled, so an
+existing config that never sets `widgets` keeps showing every widget
+unchanged. Valid keys: `wallet`, `campaigns`, `inventory`,
+`advertiser_report`, `publisher_report` (the `AdveroDashboardWidgetKey`
+type exported from `src/advero`).
 
 ## Caching strategy
 
